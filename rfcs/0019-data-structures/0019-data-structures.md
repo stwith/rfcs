@@ -38,9 +38,9 @@
 
 | 名称       | 类型        | 描述                                                  |
 | :--------- | :--------- | :----------------------------------------------------------- |
-| `capacity` | uint64     | **定义 cell 的容量大小 (用 shannons 表示)。** 当一个新的 Cell （通过交易） 生成时, 其中一条验证规则是 `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. 这个值也代表了 CKB 作为 coin 的余额，就像比特币的 CTxOut 中的`nValue` 字段一样。(例如：Alice 拥有 100 个 CKB，这意味着她可以解锁一组共有数量为 100 个 `bytes` （即 10_000_000_000 个 `shannons`）的 Cells。) 实际返回值为十六进制字符串格式。|
+| `capacity` | uint64     | **定义 cell 的容量大小 (用 shannons 表示)。** 当一个新的 Cell （通过转账） 生成时, 其中一条验证规则是 `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. 这个值也代表了 CKB 作为 coin 的余额，就像比特币的 CTxOut 中的`nValue` 字段一样。(例如：Alice 拥有 100 个 CKB，这意味着她可以解锁一组共有数量为 100 个 `bytes` （即 10_000_000_000 个 `shannons`）的 Cells。) 实际返回值为十六进制字符串格式。|
 | `type`     | `Script`   | **定义 cell 类型的 Script。** 它限制了新 cells 的 `data` 字段是如何从旧 cells 转换过来的。`type` 需要具有 `Script` 的数据结构。**这个字段是可选的。** |
-| `lock`     | `Script`   | **定义 cell 所有权的 Script。** 就像是比特币 CTxOut 中的 `scriptPubKey` 字段一样。任何能够提供解锁参数使得脚本成功执行的人，都可以使用该 cell 作为交易的 input（即拥有该 cell 的所有权）。|
+| `lock`     | `Script`   | **定义 cell 所有权的 Script。** 就像是比特币 CTxOut 中的 `scriptPubKey` 字段一样。任何能够提供解锁参数使得脚本成功执行的人，都可以使用该 cell 作为转账的 input（即拥有该 cell 的所有权）。|
 
 
 
@@ -66,21 +66,21 @@
 
 | 名称           | 类型                                 | 描述                                                  |
 | :------------ | :----------------------------------- | :----------------------------------------------------------- |
-| `code_hash`   | H256(hash)                           | **定义为包含 CKB 脚本的具有 ELF 格式的 RISC-V 二进制文件的哈希值。** 出于空间效率的考虑，实际脚本会作为 dep cell 附到当前交易中。根据 `hash_type` 的值，此处指定的哈希应该匹配 dep cell 中 cell data 部分的哈希或者是 dep cell 中 type script 的哈希。当它在交易验证中被指定时，实际的二进制文件会被加载到 CKB-VM 中。 |
+| `code_hash`   | H256(hash)                           | **定义为包含 CKB 脚本的具有 ELF 格式的 RISC-V 二进制文件的哈希值。** 出于空间效率的考虑，实际脚本会作为 dep cell 附到当前转账中。根据 `hash_type` 的值，此处指定的哈希应该匹配 dep cell 中 cell data 部分的哈希或者是 dep cell 中 type script 的哈希。当它在转账验证中被指定时，实际的二进制文件会被加载到 CKB-VM 中。 |
 | `args`        | [Bytes]                              | **定义为作为脚本输入的参数数组。** 这里的参数将作为脚本的输入参数导入到 CKB-VM 中。注意，对于锁脚本，相应的 CellInput 将有另一个 agrs 字段附加到这个数组中，以形成完整的输入参数列表。 |
 | `hash_type`   | String, 可以是 `type` 或者 `code`    | **定义为查找 dep cells 时对代码哈希的说明。** 如果是 `code`，`code_hash` 需要匹配 dep cell 中 data 部分经过 blake2b 得到的哈希；如果是 `type`，`code_hash` 需要需要匹配 dep cell 中 type script 的哈希。 |
 
 
 
-When a script is validated, CKB will run it in a RISC-V VM, `args` must be loaded via special CKB syscalls. UNIX standard `argc`/`argv` convention is not used in CKB. For more information on the CKB VM please refer to [CKB VM RFC](../0003-ckb-vm/0003-ckb-vm.md).
+当一个脚本被验证时，CKB 链会在 RISC-V 虚拟机内运行它，`args` 必须通过特殊的 CKB syscalls 进行调用加载。CKB 中不使用 UNIX 标准中的 `argc`/`argv` 方法。想要了解更多关于 CKB 虚拟机的信息，请参阅 [CKB VM RFC](../0003-ckb-vm/0003-ckb-vm.md)。
 
-For more information regarding how `Script` structure is implemented please refer to the [CKB repo](https://github.com/nervosnetwork/ckb).
+更多关于 `Script` 结构如何应用的信息，请参阅 [CKB repo](https://github.com/nervosnetwork/ckb).
 
 
 
-## Transaction
+## 转账
 
-### Example
+### 示例
 
 ```json
 {
@@ -136,15 +136,17 @@ For more information regarding how `Script` structure is implemented please refe
 }
 ```
 
-### Description
+### 描述
 
-#### Transaction
+#### 转账
 
-| Name              | Type                             | Description                                                  |
+| 名称              | 类型                             | 描述                                                  |
 | ----------------- | -------------------------------- | ------------------------------------------------------------ |
-| `version`         | uint32                           | **The version of the transaction.** It‘s used to distinguish transactions when there's a fork happened to the blockchain system. |
-| `cell_deps`       | [`CellDep`]                      | **An array of `outpoint` pointing to the cells that are dependencies of this transaction.** Only live cells can be listed here. The cells listed are read-only. |
-| `header_deps`     | [`H256(hash)`]                   | **An array of `H256` hashes pointint to block headers that are dependencies of this transaction.** Notice maturity rules apply here: a transaction can only reference a header that is at least 4 epochs old. |
+| `version`         | uint32                           | **定义为当前转账的版本。** 当区块链系统发生分叉时，用它来区分转账（发生在哪一条链上）。 |
+| `cell_deps`       | [`CellDep`]                      | **一个 `outpoint` 数组，指向此转账依赖的 cells。** 只有 live 的 cells 才可以列在这里。这里列出的 cells 是 read-only 的。 |
+| `header_deps`     | [`H256(hash)`]                   | **一个 `H256` 哈希数组，指向此转账依赖的区块头
+
+An array of `H256` hashes pointint to block headers that are dependencies of this transaction.** Notice maturity rules apply here: a transaction can only reference a header that is at least 4 epochs old. |
 | `inputs`          | [`CellInput`]                    | **An array of referenced cell inputs.** See below for explanations of underlying data structure |
 | `outputs`         | [`Cells`], see above for details | **An array of cells that are used as outputs**, i.e. the newly generated cells. These are the cells may be used as inputs for other transactions. Each of the Cell has the same structure to [the Cell section](#cell) above. |
 | `outputs_data`    | [`Bytes`]                        | **An array of cell data for each cell output.** The actual data are kept separated from outputs for the ease of CKB script handling and for the possibility of future optimizations. |
