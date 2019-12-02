@@ -66,10 +66,10 @@
 
 | 名称           | 类型                                 | 描述                                                  |
 | :------------ | :----------------------------------- | :----------------------------------------------------------- |
-| `code_hash`   | H256(hash)                           | **定义为包含 CKB 脚本的具有 ELF 格式的 RISC-V 二进制文件的哈希值。** 
-出于空间效率的考虑，实际脚本会作为 dep cell 附到当前交易中。根据 `hash_type` 的值，此处指定的哈希应该匹配 dep cell 中 cell data 部分的哈希或者是 dep cell 中 type script 的哈希。当它们在交易验证中被指定时，实际的二进制文件会被加载到 CKB-VM 中。 |
-| `args`        | [Bytes]                              | **定义为作为脚本输入的参数数组。** The arguments here are imported into the CKB-VM instance as input arguments for the scripts. Note that for lock scripts, the corresponding CellInput would have another args field which is appended to the array here to form the complete input argument list. |
-| `hash_type`   | String, could be `type` or `code`    | **The interpretation of code hash when looking for matched dep cells.** If this is `code`, `code_hash` should match the blake2b hash of data in a dep cell; if this is `type`, `code_hash` should instead match the type script hash of a dep cell. |
+| `code_hash`   | H256(hash)                           | **定义为包含 CKB 脚本的具有 ELF 格式的 RISC-V 二进制文件的哈希值。** 出于空间效率的考虑，实际脚本会作为 dep cell 附到当前交易中。根据 `hash_type` 的值，此处指定的哈希应该匹配 dep cell 中 cell data 部分的哈希或者是 dep cell 中 type script 的哈希。当它在交易验证中被指定时，实际的二进制文件会被加载到 CKB-VM 中。 |
+| `args`        | [Bytes]                              | **定义为作为脚本输入的参数数组。** 这里的参数将作为脚本的输入参数导入到 CKB-VM 中。注意，对于锁脚本，相应的 CellInput 将有另一个 agrs 字段附加到这个数组中，以形成完整的输入参数列表。 |
+| `hash_type`   | String, 可以是 `type` 或者 `code`    | **定义为查找 dep cells 时对代码哈希的说明。** 
+如果是 `code`，`code_hash` 需要匹配 dep cell 中 data 部分经过 blake2b 得到的哈希；如果是 `type`，`code_hash` 需要需要匹配 dep cell 中 type script 的哈希。 |
 
 
 
