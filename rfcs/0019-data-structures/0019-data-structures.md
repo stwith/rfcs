@@ -64,10 +64,11 @@
 
 ### 描述
 
-| Name          | Type                                 | Description                                                  |
+| 名称           | 类型                                 | 描述                                                  |
 | :------------ | :----------------------------------- | :----------------------------------------------------------- |
-| `code_hash`   | H256(hash)                           | **The hash of ELF formatted RISC-V binary that contains a CKB script.** For space efficiency consideration, the actual script is attached to current transaction as a dep cell. Depending on the value of `hash_type`, the hash specified here should either match the hash of cell data part in the dep cell, or the hash of type script in the dep cell. The actual binary is loaded into an CKB-VM instance when they are specified upon the transaction verification. |
-| `args`        | [Bytes]                              | **An array of arguments as the script input.** The arguments here are imported into the CKB-VM instance as input arguments for the scripts. Note that for lock scripts, the corresponding CellInput would have another args field which is appended to the array here to form the complete input argument list. |
+| `code_hash`   | H256(hash)                           | **定义为包含 CKB 脚本的具有 ELF 格式的 RISC-V 二进制文件的哈希值。** 
+出于空间效率的考虑，实际脚本会作为 dep cell 附到当前交易中。根据 `hash_type` 的值，此处指定的哈希应该匹配 dep cell 中 cell data 部分的哈希或者是 dep cell 中 type script 的哈希。当它们在交易验证中被指定时，实际的二进制文件会被加载到 CKB-VM 中。 |
+| `args`        | [Bytes]                              | **定义为作为脚本输入的参数数组。** The arguments here are imported into the CKB-VM instance as input arguments for the scripts. Note that for lock scripts, the corresponding CellInput would have another args field which is appended to the array here to form the complete input argument list. |
 | `hash_type`   | String, could be `type` or `code`    | **The interpretation of code hash when looking for matched dep cells.** If this is `code`, `code_hash` should match the blake2b hash of data in a dep cell; if this is `type`, `code_hash` should instead match the type script hash of a dep cell. |
 
 
