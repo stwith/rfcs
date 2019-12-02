@@ -1,15 +1,15 @@
 ---
-Number: "0019"
-Category: Informational
-Status: Draft
-Author: Xuejie Xiao
-Organization: Nervos Foundation
-Created: 2019-03-26
+序号: "0019"
+类别: Informational
+状态: 草案
+作者: 肖雪洁
+组织: Nervos Foundation
+创建于: 2019-03-26
 ---
 
-# Data Structures of Nervos CKB
+# Nervos CKB 的数据结构
 
-This documents explains all the basic data structures used in CKB.
+本文档描述了 CKB 中使用的所有基本数据结构。
 
 * [Cell](#Cell)
 * [Script](#Script)
@@ -20,7 +20,7 @@ This documents explains all the basic data structures used in CKB.
 
 ## Cell
 
-### Example
+### 示例
 
 ```json
 {
@@ -34,23 +34,23 @@ This documents explains all the basic data structures used in CKB.
 }
 ```
 
-## Description
+## 描述
 
-| Name       | Type       | Description                                                  |
+| 名称       | 类型        | 描述                                                  |
 | :--------- | :--------- | :----------------------------------------------------------- |
-| `capacity` | uint64     | **The size of the cell (in shannons).** When a new cell is generated (via transaction), one of the verification rule is `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. This value also represents the balance of CKB coin, just like the `nValue` field in the Bitcoin's CTxOut. (E.g. Alice owns 100 CKB coins means she can unlock a group of cells that has 100 amount of `bytes` (which is 10_000_000_000 amount of `shannons`) in total.). The actual value is returned in hex string format. |
-| `type`     | `Script`   | **A Script that defines the type of the cell.** It limits how the `data` field of the new cells can be changed from old cells. `type` is required to has a data structure of `script`. **This field is optional.** |
-| `lock`     | `Script`   | **A Script that defines the ownership of the cell**, just like the `scriptPubKey` field in the Bitcoin's CTxOut. Whoever can provide unlock arguments that makes the execution of this script success can consume this cell as input in an transaction (i.e. has the ownership of this cell). |
+| `capacity` | uint64     | **Cell 的容量大小 (用 shannons 表示)** 当一个新的 Cell （通过交易） 生成时, 其中一条验证规则是 `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. 这个值也代表了 CKB 作为 coin 的余额，就像比特币的 CTxOut 中的`nValue` 字段一样。(例如：Alice 拥有 100 个 CKB，这意味着她可以解锁一组共有数量为 100 个 `bytes` （即 10_000_000_000 个 `shannons`）的 Cells。) 实际返回值为十六进制字符串格式。|
+| `type`     | `Script`   | **定义 cell 类型的 Script** 它限制了新 cells 的 `data` 字段是如何从旧 cells 转换过来的。`type` 需要具有 `Script` 的数据结构。**这个字段是可选的。** |
+| `lock`     | `Script`   | **定义 cell 所有权的 Script** 就像是比特币 CTxOut 中的 `scriptPubKey` 字段一样。任何能够提供解锁参数使得脚本成功执行的人，都可以使用该 cell 作为交易的 input（即拥有该 cell 的所有权）。|
 
 
 
-More information about Cell can be found in the [whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#42-cell).
+关于 Cell 的更多信息可以在 [白皮书](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#42-cell) 中找到。
 
 
 
 ## Script
 
-### Example
+### 示例
 
 ```json
 {
@@ -62,7 +62,7 @@ More information about Cell can be found in the [whitepaper](https://github.com/
 
 
 
-### Description
+### 描述
 
 | Name          | Type                                 | Description                                                  |
 | :------------ | :----------------------------------- | :----------------------------------------------------------- |
