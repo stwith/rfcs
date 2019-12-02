@@ -38,9 +38,9 @@
 
 | 名称       | 类型        | 描述                                                  |
 | :--------- | :--------- | :----------------------------------------------------------- |
-| `capacity` | uint64     | **Cell 的容量大小 (用 shannons 表示)** 当一个新的 Cell （通过交易） 生成时, 其中一条验证规则是 `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. 这个值也代表了 CKB 作为 coin 的余额，就像比特币的 CTxOut 中的`nValue` 字段一样。(例如：Alice 拥有 100 个 CKB，这意味着她可以解锁一组共有数量为 100 个 `bytes` （即 10_000_000_000 个 `shannons`）的 Cells。) 实际返回值为十六进制字符串格式。|
-| `type`     | `Script`   | **定义 cell 类型的 Script** 它限制了新 cells 的 `data` 字段是如何从旧 cells 转换过来的。`type` 需要具有 `Script` 的数据结构。**这个字段是可选的。** |
-| `lock`     | `Script`   | **定义 cell 所有权的 Script** 就像是比特币 CTxOut 中的 `scriptPubKey` 字段一样。任何能够提供解锁参数使得脚本成功执行的人，都可以使用该 cell 作为交易的 input（即拥有该 cell 的所有权）。|
+| `capacity` | uint64     | **Cell 的容量大小 (用 shannons 表示)。** 当一个新的 Cell （通过交易） 生成时, 其中一条验证规则是 `capacity_in_bytes >= len(capacity) + len(data) + len(type) + len(lock)`. 这个值也代表了 CKB 作为 coin 的余额，就像比特币的 CTxOut 中的`nValue` 字段一样。(例如：Alice 拥有 100 个 CKB，这意味着她可以解锁一组共有数量为 100 个 `bytes` （即 10_000_000_000 个 `shannons`）的 Cells。) 实际返回值为十六进制字符串格式。|
+| `type`     | `Script`   | **定义 cell 类型的 Script。** 它限制了新 cells 的 `data` 字段是如何从旧 cells 转换过来的。`type` 需要具有 `Script` 的数据结构。**这个字段是可选的。** |
+| `lock`     | `Script`   | **定义 cell 所有权的 Script。** 就像是比特币 CTxOut 中的 `scriptPubKey` 字段一样。任何能够提供解锁参数使得脚本成功执行的人，都可以使用该 cell 作为交易的 input（即拥有该 cell 的所有权）。|
 
 
 
