@@ -157,8 +157,7 @@
 | 名称        | 类型                                 | 描述                                                 |
 | ----------- | ------------------------------------ | --------------------------------------------------- |
 | `out_point` | `OutPoint`                           | **一个指向 cells 的 cell outpoint，和 deps 一样使用。** Dep cells 和转账相关，它可以用于放置会加载到 CKB VM 中的代码，或者用于放置可用于脚本执行的数据。 |
-| `dep_type`  | String, 是 `code` 或者是 `dep_group` | **解释引用 cell deps 的方法。** 
-cell dep 可以通过两种方式进行引用：对于 `dep_type` 是 `code` 的 cell dep，这个 dep cell 会直接包含在转账中。对于 `dep_type` 是 `dep_group` 的 cell dep，假设这个 cell 包含了一个 cell deps 的列表，CKB 可以先加载这个 dep cell，然后将剩下的 cell deps 替代当前的 cell dep，并将它们包含在当前的转账中。这可以在一个 CellDep 结构中包含多个更快更小（就转账大小而言）的 dep cells。 |
+| `dep_type`  | String, 是 `code` 或者是 `dep_group` | **解释引用 cell deps 的方法。** cell dep 可以通过两种方式进行引用：对于 `dep_type` 是 `code` 的 cell dep，这个 dep cell 会直接包含在转账中。对于 `dep_type` 是 `dep_group` 的 cell dep，假设这个 cell 包含了一个 cell deps 的列表，CKB 可以先加载这个 dep cell，然后将剩下的 cell deps 替代当前的 cell dep，并将它们包含在当前的转账中。这可以在一个 CellDep 结构中包含多个更快更小（就转账大小而言）的 dep cells。 |
 
 
 #### CellInput
@@ -167,29 +166,26 @@ cell dep 可以通过两种方式进行引用：对于 `dep_type` 是 `code` 的
 | 名称              | 类型        | 描述                                                  |
 | ----------------- | ---------- | ------------------------------------------------------------ |
 | `previous_output` | `OutPoint` | **一个指向之前作为 inputs cells 的 cell outpoint。** 输入 cells 实际上在上一次转账中是输出，因此在这里将它们标记为 `previous_output`。这些 Cells 通过 `outpoint` 进行引用，它会包含上一次转账的转账 `hash`，并在转账的 output 列表内包含这个 cell 的 `index`。 |
-| `since`           | uint64     | **
-Since 值用于保护当前引用的 inputs。** 更多详情请参阅[Since RFC](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0017-tx-valid-since/0017-tx-valid-since.md)。 |
+| `since`           | uint64     | **Since 值用于保护当前引用的 inputs。** 更多详情请参阅[Since RFC](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0017-tx-valid-since/0017-tx-valid-since.md)。 |
 
 
 #### OutPoint
 
 
-| Name    | Type               | Description                                                  |
+| 名称    | 类型              | 描述                                                  |
 | ------- | ------------------ | ------------------------------------------------------------ |
-| `hash`  | H256(hash)         | **The hash of the transaction that this cell belongs to.**   |
-| `index` | uint32             | **The index of the cell in its transaction's output list.**  |
+| `hash`  | H256(hash)         | **当前 cell 所属的转账的哈希。**   |
+| `index` | uint32             | **当前 cell 的转账 output 列表的索引。 |
+
+
+关于 Nervos CKB 上转账的更多信息，可以在[whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
 
 
 
 
+## 区块
 
-More information about the Transaction of Nervos CKB can be found in [whitepaper](../0002-ckb/0002-ckb.md#44-transaction).
-
-
-
-## Block
-
-### Example
+### 示例
 
 ```json
 {
@@ -272,22 +268,22 @@ More information about the Transaction of Nervos CKB can be found in [whitepaper
 }
 ```
 
-### Description
+### 描述
 
-#### Block
+#### 区块
 
-| Name                    | Type            | Description                                                  |
+| 名称                    | 类型            | 描述                                                   |
 | ----------------------- | --------------- | ------------------------------------------------------------ |
 | `header`                | `Header`        | **The block header of the block.** This part contains some metadata of the block. See [the Header section](#header) below for the details of this part. |
 | `trasactions`           | [`Transaction`] | **An array of committed transactions contained in the block.** Each element of this array has the same structure as [the Transaction structure](#transaction) above. |
 | `proposals`             | [string]        | **An array of hex-encoded short transaction ID of the proposed transactions.** |
 | `uncles`                | [`UncleBlock`]  | **An array of uncle blocks of the block.** See [the UncleBlock section](#uncleblock) below for the details of this part. |
 
-#### Header
+#### 区块头
 
 (`header` is a sub-structure of `block` and `UncleBlock`.)
 
-| Name                | Type       | Description                                                  |
+| 名称                | 类型        | 描述                                                       |
 | ------------------- | ---------- | ------------------------------------------------------------ |
 | `compact_target`    | uint32     | **The difficulty of the PoW puzzle represented in compact target format.** |
 | `number`            | uint64     | **The block height.**                                        |
@@ -301,11 +297,11 @@ More information about the Transaction of Nervos CKB can be found in [whitepaper
 | `epoch`             | uint64     | **Current epoch information.** Assume `number` represents the current epoch number, `index` represents the index of the block in the current epoch(start at 0), `length` represents the length of current epoch. The value store here will then be `(number & 0xFFFFFF) | ((index & 0xFFFF) << 24) | ((length & 0xFFFF) << 40)` |
 | `dao`               | Bytes      | **Data containing DAO related information.** Please refer to Nervos DAO RFC for details on this field. |
 
-#### UncleBlock
+#### 叔块
 
-(`UncleBlock` is a sub-structure of `Block`.)
+(`叔块` 是 `区块` 的子结构.)
 
-| Name                    | Type          | Description                                                  |
+| 名称                    | 类型          | 描述                                                 |
 | ----------------------- | ------------- | ------------------------------------------------------------ |
 | `header`                | `Header`      | **The block header of the uncle block.** The inner structure of this part is same as [the Header structure](#header) above. |
 | `proposals`             | [`string`]    | **An array of short transaction IDs of the proposed transactions in the uncle block.** |
