@@ -74,7 +74,7 @@
 
 当一个脚本被验证时，CKB 链会在 RISC-V 虚拟机内运行它，`args` 必须通过特殊的 CKB syscalls 进行调用加载。CKB 中不使用 UNIX 标准中的 `argc`/`argv` 方法。想要了解更多关于 CKB 虚拟机的信息，请参阅 [CKB VM RFC](../0003-ckb-vm/0003-ckb-vm.md)。
 
-更多关于 `Script` 结构如何应用的信息，请参阅 [CKB repo](https://github.com/nervosnetwork/ckb).
+更多关于 `Script` 结构如何应用的信息，请参阅[CKB repo](https://github.com/nervosnetwork/ckb).
 
 
 
@@ -144,31 +144,31 @@
 | ----------------- | -------------------------------- | ------------------------------------------------------------ |
 | `version`         | uint32                           | **定义为当前转账的版本。** 当区块链系统发生分叉时，用它来区分转账（发生在哪一条链上）。 |
 | `cell_deps`       | [`CellDep`]                      | **一个 `outpoint` 数组，指向此转账依赖的 cells。** 只有 live 的 cells 才可以列在这里。这里列出的 cells 是 read-only 的。 |
-| `header_deps`     | [`H256(hash)`]                   | **一个 `H256` 哈希数组，指向此转账依赖的区块头
-
-An array of `H256` hashes pointint to block headers that are dependencies of this transaction.** Notice maturity rules apply here: a transaction can only reference a header that is at least 4 epochs old. |
-| `inputs`          | [`CellInput`]                    | **An array of referenced cell inputs.** See below for explanations of underlying data structure |
-| `outputs`         | [`Cells`], see above for details | **An array of cells that are used as outputs**, i.e. the newly generated cells. These are the cells may be used as inputs for other transactions. Each of the Cell has the same structure to [the Cell section](#cell) above. |
-| `outputs_data`    | [`Bytes`]                        | **An array of cell data for each cell output.** The actual data are kept separated from outputs for the ease of CKB script handling and for the possibility of future optimizations. |
-| `witnesses`       | [`Bytes`]                        | **Witnesses provided by transaction creator to make the execution of corresponding lock script success**. One example here, is that signatures might be include here to make sure a signature verification lock script passes. |
+| `header_deps`     | [`H256(hash)`]                   | **一个 `H256` 哈希数组，指向此转账依赖的区块头。** 注意这里需要采用等待一定区块完成确认的规则：一笔交易只能引用至少已经完成 4 个 epochs 以上确认的区块头。 |
+| `inputs`          | [`CellInput`]                    | **一个引用 cell inputs 的数组。** 参见下文对基本数据结构的解释。 |
+| `outputs`         | [`Cells`], 详情见上文 | **一个作为 outputs 的 cells 数组。** 也就是新生成的 cells。这些 cells 可以作为其他转账的 inputs。每一个 Cell 都拥有和上面[Cell 章节](#cell)一样的结构。 |
+| `outputs_data`    | [`Bytes`]                        | **一个由所有 cell output 的 cell data 组成的数组。** 将实际数据与输出分离，以便于 CKB 脚本的处理和未来优化的可能。 |
+| `witnesses`       | [`Bytes`]                        | **Witnesses 由交易创建器提供，使得相应的锁脚本可以成功执行。** 这里的一个例子是，这里可能包含签名，以确保签名验证的锁脚本可以通过。  |
 
 
 #### CellDep
 
 
-| Name        | Type                                 | Description                                                  |
-| ----------- | ------------------------------------ | ------------------------------------------------------------ |
-| `out_point` | `OutPoint`                           | **A cell outpoint that point to the cells used as deps.** Dep cells are dependencies of a transaction, it could be used to include code that are loaded into CKB VM, or data that could be used in script execution. |
-| `dep_type`  | String, either `code` or `dep_group` | **The way to interpret referenced cell deps.** A cell dep could be referenced in 2 ways: for a cell dep with `code` as `dep_type`, the dep cell is directly included in the transaction. If a cell dep `dep_type` uses `dep_group`, however, CKB would first load this dep cell, assume the content of this cell contains a list of cell deps, then use the extracted list of cell deps to replace current cell dep, and include them in current transaction. This provides a quicker and smaller(in terms of transaction size) to include multiple commonly used dep cells in one CellDep construct. |
+| 名称        | 类型                                 | 描述                                                 |
+| ----------- | ------------------------------------ | --------------------------------------------------- |
+| `out_point` | `OutPoint`                           | **一个指向 cells 的 cell outpoint，和 deps 一样使用。** Dep cells 和转账相关，它可以用于放置会加载到 CKB VM 中的代码，或者用于放置可用于脚本执行的数据。 |
+| `dep_type`  | String, 是 `code` 或者是 `dep_group` | **解释引用 cell deps 的方法。** 
+cell dep 可以通过两种方式进行引用：对于 `dep_type` 是 `code` 的 cell dep，这个 dep cell 会直接包含在转账中。对于 `dep_type` 是 `dep_group` 的 cell dep，假设这个 cell 包含了一个 cell deps 的列表，CKB 可以先加载这个 dep cell，然后将剩下的 cell deps 替代当前的 cell dep，并将它们包含在当前的转账中。这可以在一个 CellDep 结构中包含多个更快更小（就转账大小而言）的 dep cells。 |
 
 
 #### CellInput
 
 
-| Name              | Type       | Description                                                  |
+| 名称              | 类型        | 描述                                                  |
 | ----------------- | ---------- | ------------------------------------------------------------ |
-| `previous_output` | `OutPoint` | **A cell outpoint that point to the cells used as inputs.** Input cells are in fact the output of previous transactions, hence they are noted as `previous_output` here. These cells are referred through  `outpoint`, which contains the transaction `hash` of the previous transaction, as well as this cell's `index` in its transaction's output list. |
-| `since`           | uint64     | **Since value guarding current referenced inputs.** Please refer to the [Since RFC](../0017-tx-valid-since/0017-tx-valid-since.md) for details on this field. |
+| `previous_output` | `OutPoint` | **一个指向之前作为 inputs cells 的 cell outpoint。** 输入 cells 实际上在上一次转账中是输出，因此在这里将它们标记为 `previous_output`。这些 Cells 通过 `outpoint` 进行引用，它会包含上一次转账的转账 `hash`，并在转账的 output 列表内包含这个 cell 的 `index`。 |
+| `since`           | uint64     | **
+Since 值用于保护当前引用的 inputs。** 更多详情请参阅[Since RFC](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0017-tx-valid-since/0017-tx-valid-since.md)。 |
 
 
 #### OutPoint
