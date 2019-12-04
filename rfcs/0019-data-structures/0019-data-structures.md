@@ -74,7 +74,7 @@
 
 当一个脚本被验证时，CKB 链会在 RISC-V 虚拟机内运行它，`args` 必须通过特殊的 CKB syscalls 进行调用加载。CKB 中不使用 UNIX 标准中的 `argc`/`argv` 方法。想要了解更多关于 CKB 虚拟机的信息，请参阅 [CKB VM RFC](../0003-ckb-vm/0003-ckb-vm.md)。
 
-更多关于 `Script` 结构如何应用的信息，请参阅[CKB repo](https://github.com/nervosnetwork/ckb).
+更多关于 `Script` 结构如何应用的信息，请参阅 [CKB repo](https://github.com/nervosnetwork/ckb).
 
 
 
@@ -146,7 +146,7 @@
 | `cell_deps`       | [`CellDep`]                      | **一个 `outpoint` 数组，指向此转账依赖的 cells。** 只有 live 的 cells 才可以列在这里。这里列出的 cells 是 read-only 的。 |
 | `header_deps`     | [`H256(hash)`]                   | **一个 `H256` 哈希数组，指向此转账依赖的区块头。** 注意这里需要采用等待一定区块完成确认的规则：一笔交易只能引用至少已经完成 4 个 epochs 以上确认的区块头。 |
 | `inputs`          | [`CellInput`]                    | **一个引用 cell inputs 的数组。** 参见下文对基本数据结构的解释。 |
-| `outputs`         | [`Cells`], 详情见上文 | **一个作为 outputs 的 cells 数组。** 也就是新生成的 cells。这些 cells 可以作为其他转账的 inputs。每一个 Cell 都拥有和上面[Cell 章节](#cell)一样的结构。 |
+| `outputs`         | [`Cells`], 详情见上文 | **一个作为 outputs 的 cells 数组。** 也就是新生成的 cells。这些 cells 可以作为其他转账的 inputs。每一个 Cell 都拥有和上面 [Cell 章节](#cell)一样的结构。 |
 | `outputs_data`    | [`Bytes`]                        | **一个由所有 cell output 的 cell data 组成的数组。** 将实际数据与输出分离，以便于 CKB 脚本的处理和未来优化的可能。 |
 | `witnesses`       | [`Bytes`]                        | **Witnesses 由交易创建器提供，使得相应的锁脚本可以成功执行。** 这里的一个例子是，这里可能包含签名，以确保签名验证的锁脚本可以通过。  |
 
@@ -166,7 +166,7 @@
 | 名称              | 类型        | 描述                                                  |
 | ----------------- | ---------- | ------------------------------------------------------------ |
 | `previous_output` | `OutPoint` | **一个指向之前作为 inputs cells 的 cell outpoint。** 输入 cells 实际上在上一次转账中是输出，因此在这里将它们标记为 `previous_output`。这些 Cells 通过 `outpoint` 进行引用，它会包含上一次转账的转账 `hash`，并在转账的 output 列表内包含这个 cell 的 `index`。 |
-| `since`           | uint64     | **Since 值用于保护当前引用的 inputs。** 更多详情请参阅[Since RFC](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0017-tx-valid-since/0017-tx-valid-since.md)。 |
+| `since`           | uint64     | **Since 值用于保护当前引用的 inputs。** 更多详情请参阅 [Since RFC](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0017-tx-valid-since/0017-tx-valid-since.md)。 |
 
 
 #### OutPoint
@@ -178,7 +178,7 @@
 | `index` | uint32             | **当前 cell 的转账 output 列表的索引。 |
 
 
-关于 Nervos CKB 上转账的更多信息，可以在[whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
+关于 Nervos CKB 上转账的更多信息，可以在 [whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
 
 
 
