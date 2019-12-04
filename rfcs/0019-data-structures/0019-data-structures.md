@@ -74,7 +74,7 @@
 
 当一个脚本被验证时，CKB 链会在 RISC-V 虚拟机内运行它，`args` 必须通过特殊的 CKB syscalls 进行调用加载。CKB 中不使用 UNIX 标准中的 `argc`/`argv` 方法。想要了解更多关于 CKB 虚拟机的信息，请参阅 [CKB VM RFC](../0003-ckb-vm/0003-ckb-vm.md)。
 
-更多关于 `Script` 结构如何应用的信息，请参阅 [CKB repo](https://github.com/nervosnetwork/ckb).
+更多关于 `Script` 结构如何应用的信息，请参阅 [CKB repo](https://github.com/nervosnetwork/ckb)。
 
 
 
@@ -178,7 +178,7 @@
 | `index` | uint32             | **当前 cell 的转账 output 列表的索引。 |
 
 
-关于 Nervos CKB 上转账的更多信息，可以在 [whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
+关于 Nervos CKB 上转账的更多信息，可以在 [whitepaper] (https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
 
 
 
