@@ -7,74 +7,86 @@ Organization: Nervos Foundation
 Created: 2019-01-20
 ---
 
-# CKB Address Format
+# CKB 地址格式
 
-## Abstract
+## 摘要
 
-*CKB Address Format* is an application level cell **lock script** display recommendation. The lock script consists of three key parameters, including *code_hash*, *hash_type* and *args*. CKB address packages lock script into a single line, verifiable, and human read friendly format.
+*CKB 地址格式* 是 cell 的 **锁脚本** 在应用层的显示建议。锁脚本主要由三个关键参数组成，包括：*code_hash*，*hash_type* 和 *args*。CKB 地址将锁脚本包装成单行的、可验证的和人类可读的格式。
 
-## Data Structure
 
-### Payload Format Types
+## 数据结构
 
-To generate a CKB address, we firstly encode lock script to bytes array, name *payload*. And secondly, we wrap the payload into final address format.
+### 有效格式类型
+
+
+为了生成 CKB 地址，我们首先将锁脚本编码为字节数组，命名为 *payload*。然后，我们将有效形式转换为最终的地址格式。
+
+有几种方式可以将锁脚本转换为有效的字节数组。我们使用 1 byte 来标识有效的格式。
 
 There are several methods to convert lock script into payload bytes array. We use 1 byte to identify the payload format.
 
-| format type |                   description                  |
+| 格式类型     |                   描述                         |
 |:-----------:|------------------------------------------------|
-|  0x01       | short version for locks with popular code_hash |
-|  0x02       | full version with hash_type = "Data"           |
-|  0x04       | full version with hash_type = "Type"           |
+|  0x01       | locks 的简短版，具有通用的 code_hash           |
+|  0x02       | 完整版，并且 hash_type = "Data"               |
+|  0x04       | 完整版，并且 hash_type = "Type"               |
 
-### Short Payload Format
+### 简短版的有效格式
 
-Short payload format is a compact format which identifies common used code_hash by 1 byte code_hash_index instead of 32 bytes code_hash.
+简短版的有效格式是一种紧凑型的格式，它用 1 byte 的 code_hash_index 来标识常用的 code_hash，而不是 32 bytes 的 code_hash。
 
 ```c
 payload = 0x01 | code_hash_index | args
 ```
 
-To translate payload to lock script, one can convert code_hash_index to code_hash and hash_type with the following *popular code_hash table*. And args as the args.
+将简短版的转换回锁脚本，可以使用下面的 *popular code_hash table* 将 code_hash_index 转换回 code_hash 和 hash_type。args 还是 args。
+
 
 | code_hash_index |        code_hash     |   hash_type  |          args           |
 |:---------------:|----------------------|:------------:|-------------------------|
 |      0x00       | SECP256K1 + blake160 |     Type     |  blake160(PK)*          |
 |      0x01       | SECP256K1 + multisig |     Type     |  multisig script hash** |
 
-\* The blake160 here means the leading 20 bytes truncation of Blake2b hash result.
+\* blake160 表示截取 Blake2b 哈希值的前 20 个 bytes。
+The blake160 here means the leading 20 bytes truncation of Blake2b hash result.
 
-\*\* The *multisig script hash* is the 20 bytes blake160 hash of multisig script. The multisig script should be assembled in the following format:
+\*\* *multisig script hash* 是 multising 脚本的 blake160 哈希的 20 个 bytes。Multising 脚本可以通过下面的格式进行组装：
 
 ```
 S | R | M | N | blake160(Pubkey1) | blake160(Pubkey2) | ...
 ```
 
-Where S/R/M/N are four single byte unsigned integers, ranging from 0 to 255, and blake160(Pubkey1) it the first 160bit blake2b hash of SECP256K1 compressed public keys. S is format version, currently fixed to 0. M/N means the user must provide M of N signatures to unlock the cell. And R means the provided signatures at least match the first R items of the Pubkey list.
+其中 S/R/M/N 是四个单字节的无符号整数，范围从 0 到 255，blake160(Pubkey1) 是公钥在 SECP256K1 压缩后，经过 blake2b 哈希后的前 160 个字节。S 是格式版本，目前固定为 0。M/N 表示用户必须提供 N 中 M 个签名才能解锁这个 cell。最后，R 表示提供的签名至少需要与公钥列表的前 R 项相匹配。
 
-For example, Alice, Bob, and Cipher collectively control a multisig locked cell. They define the unlock rule like "any two of us can unlock the cell, but Cipher must approve". The corresponding multisig script is:
+
+举个例子，Alice，Bob 和 Cipher 共同控制一个 multisig 锁定的 cell。他们定义解锁规则是：“三人中任意两人可以解锁这个 cell，但是 Cipher 必须同意”。那么相对应的 multisig 脚本就是：
 
 ```
 0 | 1 | 2 | 3 | Pk_Cipher_h | Pk_Alice_h | Pk_Bob_h
 ```
 
-### Full Payload Format
+### 完整版的有效格式
 
-Full payload format directly encodes all data field of lock script.
+
+完整版的有效格式直接编码锁脚本的所有数据字段。
+
 
 ```c
 payload = 0x02/0x04 | code_hash | args
 ```
 
 The first byte identifies the lock script's hash_type, 0x02 for "Data", 0x04 for "Type". 
+第一个字节定义锁脚本的 hash_type，"Data" 是 0x02，"Type" 是 0x04。
 
-## Wrap to Address
 
-We follow [Bitcoin base32 address format (BIP-173)][bip173] rules to wraps payload in to address, which uses Bech32 encoding and a [BCH checksum][bch].
+## 包装成地址
 
-The original version of Bech32 allows at most 90 characters long. Similar with [BOLT][BOLT_url], we simply remove the length limit. The error correction function is disabled when the Bech32 string is longer than 90. We don't intent to use this function anyway, because there is a risk to get wrong correction result.
+我们遵循 [Bitcoin base32 address format (BIP-173)](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) 规则将有效格式转换成地址，这里使用的是 Bech32 编码和一个 [BCH 校验](https://en.wikipedia.org/wiki/BCH_code)
 
-A Bech32 string consists of the **human-readable part**, the **separator**, and the **data part**. The last 6 characters of data part is checksum. The data part is base32 encoded. Here is the readable translation of base32 encoding table.
+Bech32 的原始版本最多允许 90 个字符的长度。和 [BOLT](https://github.com/lightningnetwork/lightning-rfc/blob/master/11-payment-encoding.md) 类似，我们去掉了这个长度限制。因为当 Bech32 字符串长度大于 90 时，将会禁用纠错功能。我们不打算直接使用这样的函数，因为有可能会得到错误的修正结果。
+
+Bech32 字符串由 **人类可读部分**，**分隔符** 和 **数据部分** 组成。数据部分的最后 6 个字符是校验码。下面是可读的 base32 编码表的翻译：
+
 
 |       |0|1|2|3|4|5|6|7|
 |-------|-|-|-|-|-|-|-|-|
@@ -83,11 +95,13 @@ A Bech32 string consists of the **human-readable part**, the **separator**, and 
 |**+16**|s|3|j|n|5|4|k|h|
 |**+24**|c|e|6|m|u|a|7|l|
 
-The human-readable part is "**ckb**" for CKB mainnet, and "**ckt**" for the testnet. The separator is always "1".
+
+人类可读部分的 "**ckb**" 意味着这是 CKB 主网，"**ckt**" 意味着这是测试网。分隔符总是 "1"。
+
 
 ![](images/ckb-address.png)
 
-## Examples and Demo Code
+## 示例和演示代码
 
 ```yml
 == short address (code_hash_index = 0x00) test ==
@@ -105,12 +119,6 @@ with args to encode:     b39bbc0b3673c7d36450bc14cfcdad2d559c6c64
 full address generated:  ckb1qjda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xw3vumhs9nvu786dj9p0q5elx66t24n3kxgj53qks
 ```
 
-Demo code: https://github.com/CipherWang/ckb-address-demo 
+Demo 代码: https://github.com/CipherWang/ckb-address-demo 
 
-[bip173]: https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
-
-[bch]: https://en.wikipedia.org/wiki/BCH_code
-
-[BOLT_url]: https://github.com/lightningnetwork/lightning-rfc/blob/master/11-payment-encoding.md
-
-[multisig_code]: https://github.com/nervosnetwork/ckb-system-scripts/blob/master/c/secp256k1_blake160_multisig_all.c
+multisig_code: https://github.com/nervosnetwork/ckb-system-scripts/blob/master/c/secp256k1_blake160_multisig_all.c
