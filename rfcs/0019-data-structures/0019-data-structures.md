@@ -274,10 +274,11 @@
 
 | 名称                    | 类型            | 描述                                                   |
 | ----------------------- | --------------- | ------------------------------------------------------------ |
-| `header`                | `Header`        | **The block header of the block.** This part contains some metadata of the block. See [the Header section](#header) below for the details of this part. |
-| `trasactions`           | [`Transaction`] | **An array of committed transactions contained in the block.** Each element of this array has the same structure as [the Transaction structure](#transaction) above. |
-| `proposals`             | [string]        | **An array of hex-encoded short transaction ID of the proposed transactions.** |
-| `uncles`                | [`UncleBlock`]  | **An array of uncle blocks of the block.** See [the UncleBlock section](#uncleblock) below for the details of this part. |
+| `header`                | `Header`        | **区块的区块头** 
+这一部分包含区块的一些元数据，请参阅下方[区块头](#header)部分，了解更多细节 |
+| `trasactions`           | [`Transaction`] | **一个由区块中已经确认提交的转账组成的数组。** 这个数组中每个元素都具有同上面[转账]部分一样的结构 |
+| `proposals`             | [string]        | **一个由提案转账进行十六进制编码后的短转账 ID 组成的数组。** |
+| `uncles`                | [`UncleBlock`]  | **一个由叔块组成的数组** 详情参阅下方[叔块]部分。 |
 
 #### 区块头
 
@@ -285,17 +286,18 @@
 
 | 名称                | 类型        | 描述                                                       |
 | ------------------- | ---------- | ------------------------------------------------------------ |
-| `compact_target`    | uint32     | **The difficulty of the PoW puzzle represented in compact target format.** |
-| `number`            | uint64     | **The block height.**                                        |
-| `parent_hash`       | H256(hash) | **The hash of the parent block.**                            |
-| `nonce`             | uint128    | **The nonce.** Similar to [the nonce in Bitcoin](https://en.bitcoin.it/wiki/Nonce). Represent the solution of the PoW puzzle |
-| `timestamp`         | uint64     | **A [Unix time](http://en.wikipedia.org/wiki/Unix_time) timestamp.** |
-| `transactions_root` | H256(hash) | **The hash of concatenated transaction hashes CBMT root and transaction witness hashes CBMT root.** |
-| `proposals_hash`    | H256(hash) | **The hash of concatenated proposal ids.** (all zeros when proposals is empty) |
-| `uncles_hash`       | H256(hash) | **The hash of concatenated hashes of uncle block headers.** （all zeros when uncles is empty) |
-| `version`           | uint32     | **The version of the block**. This is for solving the compatibility issues might be occurred after a fork. |
-| `epoch`             | uint64     | **Current epoch information.** Assume `number` represents the current epoch number, `index` represents the index of the block in the current epoch(start at 0), `length` represents the length of current epoch. The value store here will then be `(number & 0xFFFFFF) | ((index & 0xFFFF) << 24) | ((length & 0xFFFF) << 40)` |
-| `dao`               | Bytes      | **Data containing DAO related information.** Please refer to Nervos DAO RFC for details on this field. |
+| `compact_target`    | uint32     | **以压缩的格式表示的 PoW 解谜（挖矿）难度。** |
+| `number`            | uint64     | **区块高度。**                                        |
+| `parent_hash`       | H256(hash) | **上一个区块的哈希。**                            |
+| `nonce`             | uint128    | **随机数。** 类似于[比特币中的随机数](https://en.bitcoin.it/wiki/Nonce)， 表示 PoW 谜题的解 |
+| `timestamp`         | uint64     | **一个 [Unix time](http://en.wikipedia.org/wiki/Unix_time) 时间戳。** |
+| `transactions_root` | H256(hash) | **串联的转账哈希的 CBMT 根和转账 witness 哈希的 CBMT 根的哈希。** |
+| `proposals_hash`    | H256(hash) | **串联的提案 ids 的哈希。** (当没有提案时所有数字为 0) |
+| `uncles_hash`       | H256(hash) | **所有叔块头的串联的哈希的哈希。** （当没有叔块时所有数字为 0) |
+| `version`           | uint32     | **区块的版本。** 
+这是用于解决在 fork 之后可能出现的兼容性问题 |
+| `epoch`             | uint64     | **当前 epoch 的信息。** 假设 `number` 代表当前 epoch 的数字，`index` 代表当前 epoch 中区块的索引（从 0 开始），`length` 代表当前 epoch 的长度。那么这里的值需要满足 `(number & 0xFFFFFF) | ((index & 0xFFFF) << 24) | ((length & 0xFFFF) << 40)` 。 |
+| `dao`               | Bytes      | **包含 DAO 相关的信息。** 详情参阅 Nervos DAO RFC。 |
 
 #### 叔块
 
@@ -303,6 +305,6 @@
 
 | 名称                    | 类型          | 描述                                                 |
 | ----------------------- | ------------- | ------------------------------------------------------------ |
-| `header`                | `Header`      | **The block header of the uncle block.** The inner structure of this part is same as [the Header structure](#header) above. |
-| `proposals`             | [`string`]    | **An array of short transaction IDs of the proposed transactions in the uncle block.** |
+| `header`                | `Header`      | **叔块的区块头。** 这部分的内部结构和上方[区块头]一致 |
+| `proposals`             | [`string`]    | **一个由叔块中提案转账的短转账 IDs 组成的数组** |
 
