@@ -50,7 +50,7 @@ payload = 0x01 | code_hash_index | args
 \* blake160 表示截取 Blake2b 哈希值的前 20 个 bytes。
 The blake160 here means the leading 20 bytes truncation of Blake2b hash result.
 
-\*\* *multisig script hash* 是 multising 脚本的 blake160 哈希的 20 个 bytes。Multising 脚本可以通过下面的格式进行组装：
+\*\* *multisig script hash* 是多签脚本的 blake160 哈希的 20 个 bytes。多签脚本可以通过下面的格式进行组装：
 
 ```
 S | R | M | N | blake160(Pubkey1) | blake160(Pubkey2) | ...
@@ -59,7 +59,7 @@ S | R | M | N | blake160(Pubkey1) | blake160(Pubkey2) | ...
 其中 S/R/M/N 是四个单字节的无符号整数，范围从 0 到 255，blake160(Pubkey1) 是公钥在 SECP256K1 压缩后，经过 blake2b 哈希后的前 160 个字节。S 是格式版本，目前固定为 0。M/N 表示用户必须提供 N 中 M 个签名才能解锁这个 cell。最后，R 表示提供的签名至少需要与公钥列表的前 R 项相匹配。
 
 
-举个例子，Alice，Bob 和 Cipher 共同控制一个 multisig 锁定的 cell。他们定义解锁规则是：“三人中任意两人可以解锁这个 cell，但是 Cipher 必须同意”。那么相对应的 multisig 脚本就是：
+举个例子，Alice，Bob 和 Cipher 共同控制一个以多签形式锁定的 cell。他们定义解锁规则是：“三人中任意两人可以解锁这个 cell，但是 Cipher 必须同意”。那么相对应的多签脚本就是：
 
 ```
 0 | 1 | 2 | 3 | Pk_Cipher_h | Pk_Alice_h | Pk_Bob_h
