@@ -178,7 +178,7 @@
 | `index` | uint32             | **当前 cell 的转账 output 列表的索引。 |
 
 
-关于 Nervos CKB 上转账的更多信息，可以在 [whitepaper] (https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction)中找到。
+关于 Nervos CKB 上转账的更多信息，可以在 [whitepaper](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0002-ckb/0002-ckb.md#44-transaction) 中找到。
 
 
 
