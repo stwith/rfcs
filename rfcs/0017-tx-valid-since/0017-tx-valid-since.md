@@ -9,41 +9,42 @@ Created: 2019-03-11
 
 # Transaction valid since
 
-## Abstract
+## 摘要
 
-This RFC suggests adding a new consensus rule to prevent a cell to be spent before a certain block timestamp or a block number.
+这个 RFC 建议通过添加一个新的共识规则，来防止在某个特定的区块时间戳或者区块号前使用一个 cell。
 
-## Summary 
+## 概要
 
-Transaction input adds a new `u64` (unsigned 64-bit integer) type field `since`, which prevents the transaction to be mined before an absolute or relative time.
+交易输入中加入一个新的 `u64`（无符号 64 位整数）类型的字段 `since`，用来防止这笔交易在一个绝对或者相对的时间之前被挖出来（被执行）。
 
-The highest 8 bits of `since` is `flags`, the remain `56` bits represent `value`, `flags` allow us to determine behaviours:
-* `flags & (1 << 7)` represent `relative_flag`.
-* `flags & (1 << 6)` and `flags & (1 << 5)` together represent `metric_flag`.
-    * `since` use a block based lock-time if `metric_flag` is `00`, `value` can be explained as a block number or a relative block number.
-    * `since` use a epoch based lock-time if `metric_flag` is `01`, `value` can be explained as a epoch number or a relative epoch number.
-    * `since` use a time based lock-time if `metric_flag` is `10`, `value` can be explained as a block timestamp(unix time) or a relative seconds.
-    * `metric_flag` `11` is invalid.
-* other 5 `flags` bits remain for other use.
+`since` 的前八位是 `flags`，剩余的 `56` 位代表 `value`，`flags` 允许我们决定以下行为：
 
-The consensus to validate this field described as follow:
-* iterate inputs, and validate each input by following rules.
-* ignore this validate rule if all 64 bits of `since` are 0.
-* check `metric_flag` flag:
-    * the lower 56 bits of `since` represent block number if `metric_flag` is `00`.
-    * the lower 56 bits of `since` represent epoch number if `metric_flag` is `01`.
-    * the lower 56 bits of `since` represent block timestamp if `metric_flag` is `10`.
-* check `relative_flag`:
-    * consider field as absolute lock time if `relative_flag` is `0`:
-        * fail the validation if tip's block number or epoch number or block timestamp is less than `since` field.
-    * consider field as relative lock time if `relative_flag` is `1`:
-        * find the block which produced the input cell, get the block timestamp or block number or epoch number based on `metric_flag` flag.
-        * fail the validation if tip's number or epoch number or timestamp minus block's number or epoch number or timestamp is less than `since` field.
-* Otherwise, the validation SHOULD continue.
+* `flags & (1 << 7)` 代表 `relative_flag`。
+* `flags & (1 << 6)` 和 `flags & (1 << 5)` 一同代表 `metric_flag`。
+   * 如果 `metric_flag` 为 `00`，`since` 使用一个基于区块的锁定期，`value` 可以解释为一个区块号（block number）或者一个相对区块号。
+   * 如果 `metric_flag` 为 `01`，`since` 使用一个基于区块的锁定期，`value` 可以解释为一个周期号（epoch number）或者一个相对周期号。
+   * 如果  `metric_flag` 为 `10`，`since` 使用一个基于时间的锁定期，`value` 可以解释为一个区块链时间戳（unix time）或者一个相对秒数。
+   * `metric_flag` 为 `11` 时，无效。
+* `flags` 其余 5 位， 留作它用。
+   
+共识中确认这一字段描述如下：
+* 迭代输入，并通过以下规则验证每一个输入。
+* 如果 `since` 的 64 位都是 0，则忽略这个验证规则。
+* 检查 `metric_flag` 的 flag：
+   * 如果 `metric_flag` 为 `00`，`since` 的后 56 位，代表的是区块号。
+   * 如果 `metric_flag` 为 `01`，`since` 的后 56 位，代表的是周期号。
+   * 如果 `metric_flag` 为 `10`，`since` 的后 56 位，代表的是区块时间戳。
+* 检查 `relative_flag`：
+   * 如果 `relative_flag` 为 `0`，将字段视为绝对锁定时间。
+      * 如果提示的区块号、周期号或者区块时间戳小于 `since` 字段，则验证失败。
+   * 如果 `relative_flag` 为 `1`，将字段视为相对锁定时间。
+      * 查找生成这个 input cell 的区块，根据 `metric_flag` 的 flag 获取区块号或周期号或区块时间戳。
+      * 如果提示所需的区块号或周期号或时间戳减去找到区块的区块号或周期号或时间戳，小于 `since` 字段，则验证失败。
+* 否则，验证应该继续。
 
-A cell lock script can check the `since` field of an input and return invalid when `since` not satisfied condition, to indirectly prevent cell to be spent.
+一个 cell 的锁脚本可以检查输入的 `since` 字段，当 `since` 不满足条件时返回无效，从而间接防止该 cell 被花费使用。
 
-This provides the ability to implement time-based fund lock scripts:
+这实现构造一个对资金进行基于时间锁定的脚本的能力：
 
 ``` ruby
 # absolute time lock
@@ -90,11 +91,11 @@ def unlock?
 end
 ```
 
-## Detailed Specification
+## 详细说明
 
-`since` SHOULD be validated with the median timestamp of the past 11 blocks to instead the block timestamp when `metric flag` is `10`, this prevents miner lie on the timestamp for earning more fees by including more transactions that immature.
+`since` 应该使用过去的 11 个区块的时间戳的中位数来进行验证，而不是 `metrice flag` 为 10 时使用的区块时间戳，这样可以防止在时间戳上撒谎，因为矿工可能会通过在一个区块中包含更多不成熟的交易来赚取更多的手续费。
 
-The median block time calculated from the past 11 blocks timestamp (from block's parent), we pick the older timestamp as median if blocks number is not enough and is odd, the details behavior defined as the following code:
+从过去的 11 个区块时间戳（在区块的父块中）中计算出区块时间的中位数，如果区块数不够且为奇数，我们选择较老的时间戳作为中位数，详细的行为定义见如下代码：
 
 ``` rust
 pub trait BlockMedianTimeContext {
@@ -125,7 +126,7 @@ pub trait BlockMedianTimeContext {
 }
 ```
 
-Validation of transaction `since` defined as follow code:
+`since` 交易的验证，定义如下代码：
 
 ``` rust
 const LOCK_TYPE_FLAG: u64 = 1 << 63;
